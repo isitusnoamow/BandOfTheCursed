@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Band of The Cursed</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <h1>Band Of The Cursed</h1>
+    <h2>Watch these instruments come back to life</h2>
+    <div class="band">
+        <img id="eguitar" src="static/eGuitar_Nonneon.png" alt="">
+        <img id="drum" src="static/Drum_Nonneon.png" alt="">
+        <img id="keyboard" src="static/Keyboard_Nonneon.png" alt="">
+        <img id="guitar" src="static/Guitar_Nonneon.png" alt="">
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js"></script>
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+    <script type="text/javascript">
+        let drumimg = document.getElementById("drum");
+        let keyboardimg = document.getElementById("keyboard");
+        let guitarimg = document.getElementById("guitar");
+        let eguitarimg = document.getElementById("eguitar");
+
+        let drumactive = false;
+        let keyboardactive = false;
+        let guitaractive = false;
+        let eguitaractive = false;
+
+        function becomeAlive() {
+            document.getElementById("drum").src = "static/dancedrum.gif";
+            document.getElementById("keyboard").src = "static/dancekeyboard.gif";
+            document.getElementById("guitar").src = "static/danceguitar.gif";
+            document.getElementById("eguitar").src = "static/danceeguitar.gif"
+        }
+
+        // Global variable to store the classifier
+        let drumClassifier;
+        let eguitarClassifier;
+
+        // Label
+        let label = 'wahoo';
+
+        const drumModel = {
+            model: "https://raw.githubusercontent.com/isitusnoamow/ml5Model/main/band/drum-model/model.json",
+            metadata: "https://raw.githubusercontent.com/isitusnoamow/ml5Model/main/band/drum-model/metadata.json",
+            weights: "https://raw.githubusercontent.com/isitusnoamow/ml5Model/main/band/drum-model/weights.bin"
+        }
+
+        const eguitarModel = {
+            model: "https://raw.githubusercontent.com/isitusnoamow/ml5Model/main/band/eguitar-model/model.json",
+            metadata: "https://raw.githubusercontent.com/isitusnoamow/ml5Model/main/band/eguitar-model/metadata.json",
+            weights: "https://raw.githubusercontent.com/isitusnoamow/ml5Model/main/band/eguitar-model/weights.bin"
+        }
+
+        const keyboardModel = {
+            model: "https://raw.githubusercontent.com/isitusnoamow/ml5Model/main/band/keyboard-model/model.json",
+            metadata: "https://raw.githubusercontent.com/isitusnoamow/ml5Model/main/band/keyboard-model/metadata.json",
+            weights: "https://raw.githubusercontent.com/isitusnoamow/ml5Model/main/band/keyboard-model/weights.bin"
+        }
+
+        const guitarModel = {
+            model: "https://raw.githubusercontent.com/isitusnoamow/ml5Model/main/band/guitar-model/model.json",
+            metadata: "https://raw.githubusercontent.com/isitusnoamow/ml5Model/main/band/guitar-model/metadata.json",
+            weights: "https://raw.githubusercontent.com/isitusnoamow/ml5Model/main/band/guitar-model/weights.bin"
+        }
+
+
+        function preload() {
+            // Load the model
+            drumClassifier = ml5.soundClassifier(drumModel.model);
+            eguitarClassifier = ml5.soundClassifier(eguitarModel.model);
+            keyboardClassifier = ml5.soundClassifier(keyboardModel.model);
+            guitarClassifier = ml5.soundClassifier(guitarModel.model);
+        }
+
+        function setup() {
+            // Start classifying
+            // The sound model will continuously listen to the microphone
+            drumClassifier.classify(gotDrumResult);
+            eguitarClassifier.classify(gotEguitarResult);
+            keyboardClassifier.classify(gotKeyboardResult);
+            guitarClassifier.classify(gotGuitarResult);
+        }
+
+        function gotDrumResult(error, results) {
+            if (error) {
+                console.error(error);
+                return;
+            }
+            if (results[0].label === "Drum" && results[0].confidence > 0.65) {
+                if (!drumactive) {
+                    drumactive = true;
+                    drumimg.src = "static/dancedrum.gif";
+                }
+            } else {
+                drumactive = false;
+                drumimg.src = "static/Drum_Nonneon.png";
+            }
+        }
+
+        function gotEguitarResult(error, results) {
+            if (error) {
+                console.error(error);
+                return;
+            }
+            if (results[0].label === "Guitar" && results[0].confidence > 0.85) {
+                if (!eguitaractive) {
+                    eguitaractive = true;
+                    eguitarimg.src = "static/danceeguitar.gif";
+                }
+            } else {
+                eguitaractive = false;
+                eguitarimg.src = "static/eGuitar_Nonneon.png";
+            }
+        }
+
+        function gotKeyboardResult(error, results) {
+            if (error) {
+                console.error(error);
+                return;
+            }
+            if (results[0].label === "Keyboard" && results[0].confidence > 0.80) {
+                if (!keyboardactive) {
+                    keyboardactive = true;
+                    keyboardimg.src = "static/dancekeyboard.gif";
+                }
+            } else {
+                keyboardactive = false;
+                keyboardimg.src = "static/Keyboard_Nonneon.png";
+            }
+        }
+
+        function gotGuitarResult(error, results) {
+            if (error) {
+                console.error(error);
+                return;
+            }
+            if (results[0].label === "AcousticGuitar" && results[0].confidence > 0.80) {
+                if (!guitaractive) {
+                    guitaractive = true;
+                    guitarimg.src = "static/danceguitar.gif";
+                }
+            } else {
+                guitaractive = false;
+                guitarimg.src = "static/Guitar_Nonneon.png";
+            }
+        }
+
+    </script>
+
+
+    <!-- preload images -->
+    <div style="display: none;">
+        <img src="static/danceguitar.gif" width="1" height="1" alt="">
+        <img src="static/dancedrum.gif" width="1" height="1" alt="">
+        <img src="static/dancekeyboard.gif" width="1" height="1" alt="">
+        <img src="static/danceeguitar.gif" width="1" height="1" alt="">
+    </div>
+</body>
+
+</html>
